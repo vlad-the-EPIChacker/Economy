@@ -3,12 +3,12 @@ import sys
 import time
 import threading
 import pygame
-
+import colors
 
 #global
 shut=False
 tm=0
-f=1
+f=0.1
 #functions
 def help(array):
     for key in commands.keys():
@@ -17,39 +17,44 @@ def help(array):
 def exit(array):
     global shut
     shut=True
-    print bcolors.OKBLUE + 'Exited Safely' + bcolors.ENDC
+    print colors.bcolors.OKBLUE + 'Exited Safely' + colors.bcolors.ENDC
     sys.exit()
 
-def show(array):
+def watch(array):
     hour=int(tm/5)
     day=hour/24
     year=day/365
     curhour=hour%24
     curday=day%365
-    print year, ':', curday, ':', curhour
+    return str(year)+':'+str(curday)+':'+str(curhour)
 
 def change(array):
     global f
     z=f
     f=float(array[1])
-    print bcolors.HEADER + 'Factor Successfully Changed From '+ str(z) +' to '+ str(f) + bcolors.ENDC
+    print colors.bcolors.HEADER + 'Factor Successfully Changed From '+ str(z) +' to '+ str(f) + colors.bcolors.ENDC
 
 def tmain():
     global tm
     global f
-    print bcolors.OKBLUE + 'Thread Main Started' + bcolors.ENDC
+    print colors.bcolors.OKBLUE + 'Thread Main Started' + colors.bcolors.ENDC
     while not shut:
         time.sleep(f)
         tm=tm+1
-    print bcolors.OKBLUE + 'Thread Main Terminated' + bcolors.ENDC
+    print colors.bcolors.OKBLUE + 'Thread Main Terminated' + colors.bcolors.ENDC
 
 def open_window():
     global shut
-    (width, height) = (300, 200)
+    (width, height) = (1300, 800)
     screen = pygame.display.set_mode((width, height))
     pygame.display.flip()
     while not shut:
+        time.sleep(1./60.)
+        screen.fill(colors.simple_color.black)
         #pygame.clock.tick(20)
+        myfont = pygame.font.SysFont("Menlo Regular", 26)
+        label = myfont.render(watch(None), 0, colors.simple_color.green)
+        screen.blit(label, (0, 0))
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -58,41 +63,22 @@ def open_window():
                 sys.exit()
 
 def input_thread():
-    print bcolors.OKBLUE + 'Thread Input Started' + bcolors.ENDC
+    print colors.bcolors.OKBLUE + 'Thread Input Started' + colors.bcolors.ENDC
     while not shut:
         array=str(raw_input('> ')).split()
         c=array[0]
         if c in commands.keys():
             commands[c][0](array)
         else:
-            print bcolors.FAIL + 'ERROR : INVALID COMMAND' + bcolors.ENDC
-    print bcolors.OKBLUE + 'Thread Input Terminated' + bcolors.ENDC
+            print colors.bcolors.FAIL + 'ERROR : INVALID COMMAND' + colors.bcolors.ENDC
+    print colors.bcolors.OKBLUE + 'Thread Input Terminated' + colors.bcolors.ENDC
 #definitions
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-class simple_color:
-    red = (255,0,0)
-    green = (0,255,0)
-    blue = (0,0,255)
-    darkBlue = (0,0,128)
-    white = (255,255,255)
-    black = (0,0,0)
-    pink = (255,200,200)
 
 #main
 commands={}
 #commands['command']=(func, definition)
 commands['/help']=(help, "Prints Commands")
 commands['/exit']=(exit, "Exits Game")
-commands['/time_show']=(show, "Displays Time")
 commands['/time_change']=(change, "Decreases or Increases Speed of Time")
 
 t = threading.Thread(target = tmain)
