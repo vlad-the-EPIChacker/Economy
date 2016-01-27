@@ -4,12 +4,25 @@ import time
 import threading
 import pygame
 import colors
+from pygame.locals import *
 
 #global
 shut=False
 tm=0
 f=0.1
+output=''
+lbuffer=3
+buffer=[None]*lbuffer
+index=0
 #functions
+def buffer_print():
+    for i in range(0, lbuffer):
+        print buffer[(index+i)%lbuffer]
+def buffer_add(s):
+    global buffer, index
+    buffer[index%lbuffer]=s
+    index += 1
+    buffer_print()
 def help(array):
     for key in commands.keys():
         print key ,':', commands[key][1]
@@ -45,22 +58,39 @@ def tmain():
 
 def open_window():
     global shut
+    prompt='>'
+    inpt=''
     (width, height) = (1300, 800)
     screen = pygame.display.set_mode((width, height))
     pygame.display.flip()
+    inptfont = pygame.font.SysFont("Menlo Regular", 50)
+    timefont = pygame.font.SysFont("Menlo Regular", 26)
     while not shut:
         time.sleep(1./60.)
         screen.fill(colors.simple_color.black)
         #pygame.clock.tick(20)
-        myfont = pygame.font.SysFont("Menlo Regular", 26)
-        label = myfont.render(watch(None), 0, colors.simple_color.green)
+        label = timefont.render(watch(None), 0, colors.simple_color.green)
         screen.blit(label, (0, 0))
+        label = inptfont.render(prompt, 0, colors.simple_color.green)
+        screen.blit(label, (0, 710))
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 shut=True
                 pygame.quit()
                 sys.exit()
+            elif event.type == KEYDOWN:
+                if event.key == K_BACKSPACE:
+                    if len(prompt) == 1:
+                        prompt='>'
+                    else:
+                        prompt=prompt[:-1]
+                elif event.key == SYSWMEVENT:
+                    inpt=prompt[1:]
+                    buffer_add(inpt)
+                    prompt='>'
+                else:
+                    prompt=prompt+chr(event.key)
 
 def input_thread():
     print colors.bcolors.OKBLUE + 'Thread Input Started' + colors.bcolors.ENDC

@@ -8,7 +8,8 @@ pygame.init()
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
 myfont = pygame.font.SysFont("Menlo Regular", 50)
-prompt='> '
+prompt='>'
+inpt=''
 while True:
     time.sleep(1/60.)
     screen.fill(colors.simple_color.black)
@@ -25,5 +26,9 @@ while True:
                     prompt='>'
                 else:
                     prompt=prompt[:-1]
+            if event.key == SYSWMEVENT:
+                inpt=prompt[1:]
+
+                prompt='>'
             else:
                 prompt=prompt+chr(event.key)
