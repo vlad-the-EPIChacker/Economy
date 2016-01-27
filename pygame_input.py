@@ -8,7 +8,7 @@ pygame.init()
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
 myfont = pygame.font.SysFont("Menlo Regular", 50)
-prompt='>'
+prompt='> '
 while True:
     time.sleep(1/60.)
     screen.fill(colors.simple_color.black)
@@ -20,4 +20,10 @@ while True:
             shut=True
             pygame.quit()
         elif event.type == KEYDOWN:
-            prompt=prompt+chr(event.key)
+            if event.key == K_BACKSPACE:
+                if len(prompt) == 1:
+                    prompt='>'
+                else:
+                    prompt=prompt[:-1]
+            else:
+                prompt=prompt+chr(event.key)
